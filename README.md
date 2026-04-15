@@ -48,7 +48,9 @@ python scripts/detect.py --source "detect.mp4" --light-weights "models/best_coll
     ```bash
     pip install -r requirements.txt
     ```
-3.  Đặt dữ liệu của bạn vào thư mục `Data/` (theo cấu trúc chuẩn của YOLO).
+3.  **Tải Dataset (Quan trọng):**
+    Vì lý do dung lượng, bộ Dataset hình ảnh không được đẩy trực tiếp lên GitHub. Vui lòng tải về từ link Google Drive/Kaggle bên dưới và giải nén vào một thư mục ngang hàng với thư mục code (ví dụ: `../Data/`).
+    *   [🔗 Link Tải Bộ Dữ Liệu (Google Drive/Kaggle - Hãy cập nhật link của bạn)]()
 
 ---
 
