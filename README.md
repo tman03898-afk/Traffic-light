@@ -50,7 +50,7 @@ python scripts/detect.py --source "detect.mp4" --light-weights "models/best_coll
     ```
 3.  **Tải Dataset:**
     Do giới hạn về dung lượng, Dataset chưa được đẩy trực tiếp lên GitHub. Hãy tải file Dataset về và giải nén vào thư mục độc lập với source code (ví dụ: `../Data/`).
-    *   [🔗 https://drive.google.com/file/d/1L-Ul_frmtA8UrXKJ4Oy2PWp4vRcr4ojk/view]()
+    *   [🔗 Tải Dataset từ Google Drive](https://drive.google.com/file/d/1L-Ul_frmtA8UrXKJ4Oy2PWp4vRcr4ojk/view)
 
 ---
 
