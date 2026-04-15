@@ -1,46 +1,46 @@
-# Hệ Thống Phát Hiện Vi Phạm Giao Thông (Tối Ưu Cho Camera Fisheye) - YOLO11
+# Hệ Thống Phát Hiện Vi Phạm Giao Thông (Camera Fisheye) - YOLO11
 
-Một quy trình phát hiện đối tượng hiệu năng cao chuyên dùng để tự động xử lý các vi phạm giao thông (Vượt đèn đỏ) sử dụng **YOLO11**. Hệ thống này được tinh chỉnh đặc biệt cho các loại camera góc rộng (Fisheye) phổ biến trong giám sát giao thông đô thị.
+Hệ thống cung cấp quy trình sử dụng YOLO11 để nhận diện và ghi nhận phương tiện vượt đèn đỏ. Project này được tinh chỉnh cho dữ liệu camera góc rộng (Fisheye) trên thực tế.
 
-## 🚀 Các Tính Năng Chính
-- **Cơ Chế Dự Phòng Đèn Tín Hiệu (Redundancy)**: Hỗ trợ nhiều vùng quét đèn (Light ROIs) cùng lúc (Vd: Đèn bên trái và bên phải) để đảm bảo vẫn nhận diện được trạng thái đèn ngay cả khi một bên bị xe lớn che khuất.
-- **Logic Xử Lý Cực Kỳ Chặt Chẽ**: Sử dụng cơ chế Zone-based (Vùng 1: Chờ vạch, Vùng 2: Vi phạm) kết hợp với thuật toán làm mượt trạng thái đèn và thời gian chờ (cooldown) để tránh bắt nhầm.
-- **Huấn Luyện Hợp Nhất (Unified Training)**: Một engine huấn luyện tập trung với các bộ thiết lập (Presets) sẵn có cho dòng model Nano/Small và các cấu hình tối ưu dữ liệu.
-- **Bằng Chứng Vi Phạm Toàn Diện**: Tự động lưu trữ ảnh crop xe, ảnh toàn cảnh (có mã hóa SHA256 để đảm bảo tính pháp lý) và video clip hành vi vi phạm.
-- **Công Cụ Trực Quan**: Tích hợp công cụ GUI để vẽ các đa giác (Polygon) tùy chỉnh cho bất kỳ ngã tư nào chỉ với vài cú click.
+## 🚀 Các Tính Năng
+- **Quét nhiều đèn tín hiệu**: Hỗ trợ định nghĩa nhiều vùng quét đèn (Light ROIs) cùng lúc để phòng trường hợp đèn bị phương tiện che khuất.
+- **Xử lý vi phạm theo vùng (Zone-based)**: So sánh đối tượng đi qua vùng chờ (Zone 1) và vùng vi phạm (Zone 2) với trạng thái đèn để xác thực vi phạm.
+- **Huấn luyện mô hình**: Cung cấp script để huấn luyện đồng nhất cho các model YOLO.
+- **Lưu file kết quả**: Tự động tính checksum SHA256 và lưu riêng ảnh crop vi phạm, ảnh toàn cảnh và đoạn video ngắn.
+- **Công cụ hỗ trợ GUI**: Tool giao diện dùng chuột hỗ trợ lấy tọa độ ROI nhanh chóng cho bất kỳ luồng camera nào.
 
 ---
 
-## 🏗️ 3 Trụ Cột Chính
+## 🏗️ Các Script Chính
 
-Để vận hành hệ thống, bạn sẽ chủ yếu tương tác với 3 file script sau:
+Các thành phần cốt lõi của hệ thống bao gồm 3 file chính:
 
-### 1. Unified Trainer (`scripts/research/train_yolo.py`)
-"Trái tim" huấn luyện của toàn bộ dự án. Nó chứa các siêu tham số (hyperparameters) và các cài đặt tăng cường dữ liệu đã được tối ưu.
+### 1. Hub huấn luyện (`scripts/research/train_yolo.py`)
+Script tổng hợp dùng để huấn luyện mô hình YOLO11 với các hệ số (hyperparameters) cấu hình sẵn.
 ```powershell
 python scripts/research/train_yolo.py --preset optimized_legacy --data configs/data.yaml
 ```
 
-### 2. ROI Setup Tool (`scripts/utils/get_polygon_roi.py`)
-Sử dụng công cụ GUI này để vẽ làn đường và vùng quét đèn cho một góc camera cụ thể.
+### 2. Công cụ lấy toạ độ ROI (`scripts/utils/get_polygon_roi.py`)
+Giúp người dùng vẽ và xác định tọa độ vùng xử lý vi phạm bằng chuột.
 ```powershell
 python scripts/utils/get_polygon_roi.py --source detect.mp4
 ```
 *   **Zone 1**: Vùng chờ trước vạch.
-*   **Zone 2**: Vùng vi phạm.
-*   **Zone 3+**: Các vùng quét đèn (Hỗ trợ đa vùng để dự phòng).
+*   **Zone 2**: Vùng chạy vi phạm.
+*   **Zone 3+**: Các vùng quét đèn.
 
-### 3. Detection Engine (`scripts/detect.py`)
-File thực thi chính để phát hiện vi phạm từ video hoặc luồng camera trực tiếp.
+### 3. File nhận diện luồng (`scripts/detect.py`)
+File thực thi dùng để chạy logic mô hình nhận diện xe và xử lý phạt nguội trên video phân tích.
 ```powershell
 python scripts/detect.py --source "detect.mp4" --light-weights "models/best_collection/yolo11n_v2.pt" --roi1 "..." --roi2 "..." --light-roi "roi_1" "roi_2"
 ```
 
 ---
 
-## 📊 Phân Tích & Đánh Giá
-- **Bảng Xếp Hạng (Leaderboards)**: Sử dụng `scripts/utils/generate_leaderboard.py` để so sánh Precision/Recall/mAP giữa tất cả các model đã train.
-- **Kiểm Tra Hiệu Năng (Inference Benchmark)**: Sử dụng `scripts/utils/infer_video.py` để đo tốc độ xử lý thực tế (FPS) trên phần cứng của bạn.
+## 📊 Đánh Giá Benchmark
+- Dùng `scripts/utils/generate_leaderboard.py` để thống kê Precision/Recall/mAP của nhiều mô hình đã huấn luyện.
+- Dùng `scripts/utils/infer_video.py` để đo FPS, benchmark phần cứng của hệ thống đo.
 
 ## 🛠️ Cài Đặt
 1.  Clone repository này về máy.
@@ -48,17 +48,17 @@ python scripts/detect.py --source "detect.mp4" --light-weights "models/best_coll
     ```bash
     pip install -r requirements.txt
     ```
-3.  **Tải Dataset (Quan trọng):**
-    Vì lý do dung lượng, bộ Dataset hình ảnh không được đẩy trực tiếp lên GitHub. Vui lòng tải về từ link Google Drive/Kaggle bên dưới và giải nén vào một thư mục ngang hàng với thư mục code (ví dụ: `../Data/`).
-    *   [🔗 Link Tải Bộ Dữ Liệu (Google Drive/Kaggle - Hãy cập nhật link của bạn)]()
+3.  **Tải Dataset:**
+    Do giới hạn về dung lượng, Dataset chưa được đẩy trực tiếp lên GitHub. Hãy tải file Dataset về và giải nén vào thư mục độc lập với source code (ví dụ: `../Data/`).
+    *   [🔗 https://drive.google.com/file/d/1L-Ul_frmtA8UrXKJ4Oy2PWp4vRcr4ojk/view]()
 
 ---
 
-## 📂 Cấu Trúc Dự Án
-- `scripts/`: Toàn bộ mã nguồn Python.
-- `configs/`: Các file YAML cấu hình dataset và mô hình.
-- `models/best_collection/`: Nơi lưu trữ các model tốt nhất sẵn sàng để triển khai.
-- `outputs/`: Nơi tự động lưu log vi phạm và kết quả xử lý.
+## 📂 Cấu Trúc File
+- `scripts/`: Source code Python chính của project.
+- `configs/`: File YAML tham chiếu Dataset.
+- `models/best_collection/`: Nơi chứa file model pre-trained hoàn thiện nhất.
+- `outputs/`: Nơi xuất log lỗi vi phạm xử lý sau khi chạy.
 
 ---
 *Dành cho các hệ thống giám sát và xử lý vi phạm giao thông tự động.*
