@@ -1,24 +1,4 @@
-"""
-He thong phat hien vuot den do - Ban hoan chinh v2
-===================================================
-Su dung: python red_light_detector.py --source video.mp4 --light-weights models/light.pt --vehicle-weights models/vehicle.pt
 
-Cac sua doi so voi ban cu:
-  [Fix #1] Xe tai nhap Zone1 → cap nhat lai trang thai den ngay lap tuc
-           (Truoc: chi ghi lan dau, co the giu den cu → false positive)
-  [Fix #2] Smoothing phat hien doi den dot ngot (hard transition) bang
-           TRANSITION_CONFIRM frames lien tiep truoc khi reset history
-           (Truoc: delay ~5-8 frame khi den doi mau → nham den xanh/do)
-  [Fix #3] Grace period khi xe mat track tam thoi (2 giay) thay vi xoa
-           state ngay → khong bo sot vi pham khi ByteTrack mat ID 1-2 frame
-           (Truoc: xoa vehicles_in_zone1 ngay → false negative)
-  [Fix #4] violators set duoc dung chinh xac: giu trong cooldown, reset
-           sau cooldown de cho phep ghi nhan vi pham hop le lan 2
-           (Truoc: violators chi doi mau box, khong tham gia logic chinh)
-  [Fix #5] zone2_frame_count reset ve -frame_threshold thay vi 0 sau vi
-           pham → dam bao du frame truoc khi trigger lan ke tiep
-           (Truoc: co the trigger lop 2 chi sau 1 frame trong cooldown)
-"""
 
 import argparse
 import cv2
